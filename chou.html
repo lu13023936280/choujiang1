@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <!-- 适配手机屏幕（关键） -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>手机抽奖工具</title>
+    <style>
+        /* 美化样式，适配手机触摸操作 */
+        body {
+            font-family: "微软雅黑", sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            background-color: white;
+            border-radius: 15px;
+            padding: 30px 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            max-width: 400px;
+            margin: 50px auto;
+        }
+        h1 {
+            color: #ff3d00;
+            font-size: 28px;
+            margin-bottom: 30px;
+        }
+        .prize-list {
+            background-color: #fafafa;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: left;
+            font-size: 16px;
+            color: #333;
+        }
+        .btn {
+            background-color: #ff3d00;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 15px 30px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin: 10px 0;
+            touch-action: manipulation; /* 防止手机双击放大 */
+        }
+        .btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 30px;
+            font-size: 22px;
+            font-weight: bold;
+            color: #ff3d00;
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .red-text {
+            color: #ff0000;
+            font-size: 24px;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎉 幸运抽奖 🎉</h1>
+        
+        <!-- 奖品池展示（手机上可滚动查看） -->
+        <div class="prize-list">
+            <strong>参与名单：</strong><br>
+            另外半只、兔子、随波浮沉、kray、芦毛灰姑娘、香蕉、四野风清、纽芬兰白狼、LRFC、榴莲、阿九
+        </div>
+
+        <!-- 抽奖按钮（手机点击触发） -->
+        <button class="btn" onclick="startDraw()">开始抽奖</button>
+        <button class="btn" onclick="resetDraw()" style="background-color: #4CAF50;">重置</button>
+
+        <!-- 抽奖结果显示 -->
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        // 奖品池（和原Python代码一致）
+        const prizePool = [
+            "另外半只",
+            "兔子",
+            "随波浮沉",
+            "kray",
+            "芦毛灰姑娘",
+            "香蕉",
+            "四野风清",
+            "纽芬兰白狼",
+            "LRFC",
+            "榴莲",
+            "阿九"
+        ];
+        let isDrawing = false; // 防止重复抽奖
+
+        // 开始抽奖
+        function startDraw() {
+            if (isDrawing) return; // 正在抽奖时禁用按钮
+            isDrawing = true;
+            const resultDom = document.getElementById("result");
+            const drawBtn = document.querySelector(".btn:first-child");
+            drawBtn.disabled = true; // 禁用抽奖按钮
+            drawBtn.textContent = "抽奖中...";
+
+            // 模拟抽奖滚动效果（手机上视觉更酷）
+            let rollCount = 0;
+            const maxRoll = 20; // 滚动次数
+            const rollInterval = setInterval(() => {
+                // 随机显示名单，模拟滚动
+                const randomIndex = Math.floor(Math.random() * prizePool.length);
+                resultDom.innerHTML = `当前滚动：<br>${prizePool[randomIndex]}`;
+                rollCount++;
+
+                // 滚动结束，抽取最终结果
+                if (rollCount >= maxRoll) {
+                    clearInterval(rollInterval);
+                    // 随机抽取2个不重复的幸运儿（和Python sample逻辑一致）
+                    const luckyWinners = [];
+                    while (luckyWinners.length < 2) {
+                        const randomIdx = Math.floor(Math.random() * prizePool.length);
+                        const winner = prizePool[randomIdx];
+                        if (!luckyWinners.includes(winner)) {
+                            luckyWinners.push(winner);
+                        }
+                    }
+                    // 显示最终结果（红色醒目）
+                    resultDom.innerHTML = `
+                        🏆 中奖结果 🏆<br><br>
+                        1. ${luckyWinners[0]}<br><br>
+                        2. ${luckyWinners[1]}<br><br>
+                        <span class="red-text">恭喜这两个叼毛！！！</span>
+                    `;
+                    isDrawing = false;
+                    drawBtn.disabled = false;
+                    drawBtn.textContent = "再次抽奖";
+                }
+            }, 100); // 滚动速度（越小越快）
+        }
+
+        // 重置抽奖
+        function resetDraw() {
+            document.getElementById("result").innerHTML = "";
+            isDrawing = false;
+            const drawBtn = document.querySelector(".btn:first-child");
+            drawBtn.disabled = false;
+            drawBtn.textContent = "开始抽奖";
+        }
+    </script>
+</body>
+</html>
